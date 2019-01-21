@@ -41,7 +41,7 @@ type OpenIDConnectRequestValidator struct {
 }
 
 func NewOpenIDConnectRequestValidator(prompt []string, strategy jwt.JWTStrategy) *OpenIDConnectRequestValidator {
-	if len(prompt) == 0 {
+	if prompt == nil {
 		prompt = []string{"login", "none", "consent", "select_account"}
 	}
 
