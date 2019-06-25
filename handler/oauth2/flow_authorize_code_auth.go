@@ -85,6 +85,9 @@ func (c *AuthorizeExplicitGrantHandler) HandleAuthorizeEndpointRequest(ctx conte
 	}
 
 	client := ar.GetClient()
+	if client.IsPublic() && ar.IsIncludeGrantedScopes() {
+		return errors.WithStack(fosite.ErrInvalidScope.WithHintf("The OAuth 2.0 Client is not allowed to process incremental auth"))
+	}
 	for _, scope := range ar.GetRequestedScopes() {
 		if !c.ScopeStrategy(client.GetScopes(), scope) {
 			return errors.WithStack(fosite.ErrInvalidScope.WithHintf("The OAuth 2.0 Client is not allowed to request scope \"%s\".", scope))
@@ -111,7 +114,11 @@ func (c *AuthorizeExplicitGrantHandler) IssueAuthorizeCode(ctx context.Context, 
 
 	resp.AddQuery("code", code)
 	resp.AddQuery("state", ar.GetState())
-	resp.AddQuery("scope", strings.Join(ar.GetGrantedScopes(), " "))
+
+	scopes := strings.Join(ar.GetGrantedScopes(), " ")
+	if ar.IsIncludeGrantedScopes() {
+	}
+	resp.AddQuery("scope", scopes)
 	ar.SetResponseTypeHandled("code")
 	return nil
 }

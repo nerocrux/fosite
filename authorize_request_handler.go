@@ -45,6 +45,9 @@ func (f *Fosite) authorizeRequestParametersFromOpenIDConnectRequest(request *Aut
 		return nil
 	}
 
+	request.IncludeGrantedScopes = request.Form.Get("include_granted_scopes") == "true"
+	request.ExistingGrant = request.Form.Get("existing_grant")
+
 	if len(request.Form.Get("request")+request.Form.Get("request_uri")) == 0 {
 		return nil
 	} else if len(request.Form.Get("request")) > 0 && len(request.Form.Get("request_uri")) > 0 {
@@ -176,6 +179,13 @@ func (f *Fosite) validateAuthorizeRedirectURI(r *http.Request, request *Authoriz
 }
 
 func (f *Fosite) validateAuthorizeScope(r *http.Request, request *AuthorizeRequest) error {
+	if request.Client.IsPublic() && request.IsIncludeGrantedScopes() {
+		// OAuth 2.0 Incremental Authorization draft-ietf-oauth-incremental-authz-02
+		// 4.  Incremental Auth for Confidential Clients
+		// https://tools.ietf.org/html/draft-ietf-oauth-incremental-authz-02#section-4
+		return errors.WithStack(ErrInvalidScope.WithHintf(`The OAuth 2.0 Client is not allowed to process incremental auth`))
+	}
+
 	scope := stringsx.Splitx(request.Form.Get("scope"), " ")
 	for _, permission := range scope {
 		if !f.ScopeStrategy(request.Client.GetScopes(), permission) {

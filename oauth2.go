@@ -262,6 +262,12 @@ type AuthorizeRequester interface {
 	// GetState returns the request's state.
 	GetState() (state string)
 
+	// IsIncludeGrantedScopes returns include_granted_scopes
+	IsIncludeGrantedScopes() (includeGrantedScopes bool)
+
+	// GetExistingGrant returns existing_grant
+	GetExistingGrant() (existingGrant string)
+
 	Requester
 }
 

@@ -31,6 +31,8 @@ type AuthorizeRequest struct {
 	RedirectURI          *url.URL  `json:"redirectUri" gorethink:"redirectUri"`
 	State                string    `json:"state" gorethink:"state"`
 	HandledResponseTypes Arguments `json:"handledResponseTypes" gorethink:"handledResponseTypes"`
+	IncludeGrantedScopes bool      `json:"includeGrantedScopes" gorethink:"includeGrantedScopes"`
+	ExistingGrant        string    `json"existingGrant" gorethink:"existingGrant"`
 
 	Request
 }
@@ -71,6 +73,14 @@ func (d *AuthorizeRequest) GetState() string {
 
 func (d *AuthorizeRequest) GetRedirectURI() *url.URL {
 	return d.RedirectURI
+}
+
+func (d *AuthorizeRequest) IsIncludeGrantedScopes() bool {
+	return d.IncludeGrantedScopes
+}
+
+func (d *AuthorizeRequest) GetExistingGrant() string {
+	return d.ExistingGrant
 }
 
 func (d *AuthorizeRequest) SetResponseTypeHandled(name string) {
