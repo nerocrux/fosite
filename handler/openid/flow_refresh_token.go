@@ -61,7 +61,6 @@ func (c *OpenIDConnectRefreshHandler) HandleTokenEndpointRequest(ctx context.Con
 
 	// We need to reset the expires at value
 	sess.IDTokenClaims().ExpiresAt = time.Time{}
-	sess.IDTokenClaims().Nonce = ""
 	return nil
 }
 
