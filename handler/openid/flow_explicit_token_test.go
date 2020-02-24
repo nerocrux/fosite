@@ -103,7 +103,7 @@ func TestExplicit_PopulateTokenEndpointResponse(t *testing.T) {
 				areq.GrantTypes = fosite.Arguments{"authorization_code"}
 				store.EXPECT().GetOpenIDConnectSession(nil, "foobar", areq).Return(fosite.NewAuthorizeRequest(), nil)
 			},
-			expectErr: fosite.ErrMisconfiguration,
+			expectErr: fosite.ErrUnknownRequest,
 		},
 		{
 			description: "should pass",

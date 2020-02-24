@@ -131,6 +131,19 @@ func TestOpenIDConnectExplicitFlow(t *testing.T) {
 			},
 			authStatusCode: http.StatusOK,
 		},
+		{
+			session: newIDSession(&jwt.IDTokenClaims{
+				Subject:     "peter",
+				RequestedAt: time.Now().UTC(),
+				AuthTime:    time.Now().Add(time.Second).UTC(),
+			}),
+			description: "should pass even openid scope is not granted",
+			setup: func(oauthClient *oauth2.Config) string {
+				oauthClient.Scopes = []string{"fosite"}
+				return oauthClient.AuthCodeURL("12345678901234567890") + "&nonce=1234567890&prompt=login"
+			},
+			authStatusCode: http.StatusOK,
+		},
 	} {
 		t.Run(fmt.Sprintf("case=%d/description=%s", k, c.description), func(t *testing.T) {
 			ts := mockServer(t, f, c.session)
@@ -164,7 +177,11 @@ func TestOpenIDConnectExplicitFlow(t *testing.T) {
 				} else {
 					require.NoError(t, err)
 					assert.NotEmpty(t, token.AccessToken)
-					assert.NotEmpty(t, token.Extra("id_token"))
+					for _, s := range oauthClient.Scopes {
+						if s == "openid" {
+							assert.NotEmpty(t, token.Extra("id_token"))
+						}
+					}
 				}
 			}
 		})

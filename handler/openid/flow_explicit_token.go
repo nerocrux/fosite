@@ -46,7 +46,7 @@ func (c *OpenIDConnectExplicitHandler) PopulateTokenEndpointResponse(ctx context
 	}
 
 	if !authorize.GetGrantedScopes().Has("openid") {
-		return errors.WithStack(fosite.ErrMisconfiguration.WithDebug("An OpenID Connect session was found but the openid scope is missing, probably due to a broken code configuration."))
+		return errors.WithStack(fosite.ErrUnknownRequest)
 	}
 
 	if !requester.GetClient().GetGrantTypes().Has("authorization_code") {
